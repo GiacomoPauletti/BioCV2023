@@ -1,32 +1,3 @@
-<style>
-green {
-    color: #74D800;
-}
-pink {
-    color: #FF88FF;
-}
-blue {
-    color: #66CCFF;
-}
-bblue {
-    color: #66CCFF;
-    font-weight: bold;
-}
-yl {
-    color: #CBB077;
-}
-.float-img {
-    float:right;
-    margin: 0 0 0 15px;
-}
-.img-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: center;
-}
-</style>
-
 # Report project for Biomedical Computer Vision 1st semester 2023/2024
 Author: Giacomo Pauletti  
   
@@ -86,9 +57,7 @@ loss, acc = model.evaluate(test_dataset, verbose=2, steps=20)
 ```
 I forgot to track loss but probably would be very low since (almost) all black pixels are correctly "predicted"
 
-<div class="img-container">
-<img src="./MD_images/image-3.png">
-</div>
+![Alt Text](./MD_images/image-3.png)
 
 ## Second model (almost working)
 My second model had the following features:
@@ -106,9 +75,8 @@ loss, acc = model.evaluate(test_dataset, verbose=2, steps=20)
 
 We notice a good accuracy and a good loss, but the predictions aren't meaningful yet
 
-<div class="img-container">
-<img src="./MD_images/image-4.png">
-</div>
+
+![Alt Text](./MD_images/image-4.png)
 
 Further analysis made me think that tuning bettew loss weights (1 - 15 vs 0.01 - 10) and increasing a lot the number of epochs (5 -> ~50) would have generated much more better results
 ## Third model (working but improvable a lot)
@@ -129,7 +97,6 @@ In the fourth model I brough a bunch of changes to the previous one:
     * I'm using as encoder the ResNet101 importing the parameters from the ResNet trained on ImageNet
     * ResNet parameters are not trained, only the decoder is trained
 * <bblue>New classes in the masks</bblue>: _borders_
-    <img src="./MD_images/image-6.png" class="float-img" width="400px">  
     * For every organ mask I automatically detected the borders, in the following way:
         * for every pixel, if it's belonging to class A and is confining with a pixel of class B, it will be added to class AB 
             * viceversa for other pixel, which will be added to class BA (different from AB)
@@ -139,12 +106,12 @@ In the fourth model I brough a bunch of changes to the previous one:
     * Every border will have it's own weight, for this model I used the following weights
         * Background: 1; Body: 3; Liver: 9; Right&Left kidney, spleen: 14; **Borders: 18**
     * This approach is highly **inspirated from the U-Net paper**, in which the authors gave much more weight to the cell borders than to the cells, to avoid having a prediction of a unique big cell
-    * Example at the right
-
+    * Example below  
+  
+![Alt Text](./MD_images/image-6.png)  
 
 * <bblue>New evaluation metrics</bblue>: _accuracy is not a good parameter_
     * I'm using 2 new metrics: 
-        <img src="./MD_images/image-8.png" class="float-img" width="350px">
         * **correct_over_total_predicted** (cotp): percentage of pixel of right class from those I predicted (so escluding what my model predicted as background or body)
             * if it's low, it could mean that the model is overpredicting organs (as model 2 did)
             * if it's high, it means that all predicted pixels are indeed organs (but it doesn' mean that I'm predicting all organ pixels, for this reason cott is needed)
@@ -154,8 +121,9 @@ In the fourth model I brough a bunch of changes to the previous one:
             * it is then not affected by the number of correct background pixels, which will be very high
             * if it's low, it means that not much organ pixels are predicted (but cotp could be 100%!)
             * if it's high, it means that (almost) all organ pixels are predicted correctly (but cotp could be low, if overpredicting)
-            * from the image, $COTT = \frac{C}{T}$
-
+            * from the image, $COTT = \frac{C}{T}$  
+  
+![Alt Text](./MD_images/image-8.png)  
 
 Here is shown a model "quality test":
 ``` python
@@ -180,9 +148,8 @@ So this model is **almost predicting correctly every pixel** and the 2 areas (T 
   
 We notice an higher accuracy and these are some of the predictions:  
   
-<div class="img-container">
-<img src="./MD_images/image-7.png">
-</div>
+
+![Alt Text](./MD_images/image-7.png)  
   
 Result could be even better applying **postprocessing morphological closure**, which eliminates sparse random organ pixels without affecting the real organs.  
 
