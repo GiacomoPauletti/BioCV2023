@@ -22,17 +22,17 @@ Useful sources and bibliography at the [bottom](#sources-and-bibliography)
 ## Dataset preprocessing
 Firstly, I preprocessed the dataset. I discovered more and more changes to do throughout the time, tipically for making the model predicting more accurately.  
 The dataset went trough the following operations:
-1. <bblue>Image reordering</bblue> and rename
-2. <bblue>Conversion</bblue> from `.dicom` to `.png`
-3. <bblue>Pixel intensity normalization</bblue> to range [0-255]
+1. <u>**Image reordering**</u> and rename
+2. <u>**Conversion**</u> from `.dicom` to `.png`
+3. <u>**Pixel intensity normalization**</u> to range [0-255]
     * Images hadn't the same intensity range
-4. <bblue>Mask one-hot encoding</bblue>
+4. <u>**Mask one-hot encoding**</u>
     * used for Categorical Cross Entropy instead of Sparse Categorical Cross Entropy
-5. <bblue>Adding a new mask class</bblue>: body
+5. <u>**Adding a new mask class**</u>: body
     * I needed the model to be more accurate close to the organs, for avoiding underprediction or overprediction
     * With this new class, I could assign it a different weight from background (and organs) in the Weighted Categorical Cross Entropy loss function
     * This mask was created through tresholding and morphological closure. This gave strange results in some images, could have been done better
-6. <bblue> Adding new mask classes</bblue>: organ borders
+6. <u>** Adding new mask classes**</u>: organ borders
     * Organ borders are highlighted new classes, to give them even stronger weights
     * For more about organ borders [click here](#fourth-model-most-accurate-by-now)
 
@@ -93,10 +93,10 @@ loss, acc = model.evaluate(test_dataset, verbose=2, steps=20)
 
 ## Fourth model (most accurate by now)
 In the fourth model I brough a bunch of changes to the previous one:
-* <bblue>New model structure</bblue>: _fine tuning from ResNet101_
+* <u>**New model structure**</u>: _fine tuning from ResNet101_
     * I'm using as encoder the ResNet101 importing the parameters from the ResNet trained on ImageNet
     * ResNet parameters are not trained, only the decoder is trained
-* <bblue>New classes in the masks</bblue>: _borders_
+* <u>**New classes in the masks**</u>: _borders_
     * For every organ mask I automatically detected the borders, in the following way:
         * for every pixel, if it's belonging to class A and is confining with a pixel of class B, it will be added to class AB 
             * viceversa for other pixel, which will be added to class BA (different from AB)
@@ -110,7 +110,7 @@ In the fourth model I brough a bunch of changes to the previous one:
   
 ![Alt Text](./MD_images/image-6.png)  
 
-* <bblue>New evaluation metrics</bblue>: _accuracy is not a good parameter_
+* <u>**New evaluation metrics**</u>: _accuracy is not a good parameter_
     * I'm using 2 new metrics: 
         * **correct_over_total_predicted** (cotp): percentage of pixel of right class from those I predicted (so escluding what my model predicted as background or body)
             * if it's low, it could mean that the model is overpredicting organs (as model 2 did)
@@ -158,7 +158,7 @@ Here is a list of future improvements for better results:
 * Currently **no data augmentation is used**, so, for a more robust model, it will be used
 * The model is not receiving any explicit correlation between images of the same volume
     * I think that giving some information about the image correlation could help the model gaining better results
-* I discovered a new article (here is the [link](https://arxiv.org/abs/1606.04797)) in which the authors talk about a <bblue>V-Net</bblue>, a CNN very similar to U-Net but for **volumetric images (3D)** and not 2D images, which would be better for me
+* I discovered a new article (here is the [link](https://arxiv.org/abs/1606.04797)) in which the authors talk about a <u>**V-Net**</u>, a CNN very similar to U-Net but for **volumetric images (3D)** and not 2D images, which would be better for me
 * Loss function is good but could be improved, also by tuning better parameters. 
 * Only 1 sequence is analyzed, T1-DUAL OutPhase. In future In future I will build models for predicting from every sequence
 
